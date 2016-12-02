@@ -44,55 +44,16 @@ Each class has ATTRIBUTES and METHODS. It is good to have GETTERS and SETTERS fo
 public but that's not good practice)
 */
 
-class Task{
-
-	protected $description; 
-
-	protected $completed = false; // by default any newly created task isn't complete!
 
 
-	public function __construct($description){
+// $task1 = new Task('Go to UWI'); // new task object created
+// $task2 = new Task('Head to the Supermarket');
+// $task3 = new Task('Call Ms Johnson');
+// $task4 = new Task('Write blog post');
 
-		$this->description = $description;
-	}
+// $tasks = [$task1, $task2, $task3, $task4];
 
-	/*Check if task is complete
-	*/
-	public function isComplete(){
-		
-		return $this->completed;
-	}
-
-	/*Set task to completed
-	*/
-	public function setComplete(){
-		
-		$this->completed = true;
-	}
-
-	/*Get description of the task
-	*/
-	public function getDesc(){
-		
-		return $this->description;
-	}
-
-	/*Update description of the task
-	*/
-	public function updateDesc($newdesc){
-		
-		$this->description = $newdesc;
-	}
-}
-
-$task1 = new Task('Go to UWI'); // new task object created
-$task2 = new Task('Head to the Supermarket');
-$task3 = new Task('Call Ms Johnson');
-$task4 = new Task('Write blog post');
-
-$tasks = [$task1, $task2, $task3, $task4];
-
-$tasks[jet_rand(3)]->setComplete();
+// $tasks[jet_rand(3)]->setComplete();
 
 /*Alternatively...
 
@@ -107,8 +68,34 @@ $tasks = [
 
 
 //require 'index.view.php';
+
+// PHP = PHP Data Object. Syntax is as per the below: type of DB:host=IP and credentials. Try using a 
+// db without a name to check the exception. best to wrap this in Try Catch.
+// Note the specific exception. You can run the getMessage function to understand amy errors eg. SQLSTATE[HY000] [1049] Unknown database 'blah'
+try {
+	
+	$pdo = new PDO('mysql:host=127.0.0.1;dbname=mytodo', 'root', '');
+
+} catch (PDOException $e) { 
+
+	die($e->getMessage());
+	
+}
+
+// echo "<span>Yup I'm good!</span>";
+
+$statement = $pdo->prepare('select * from todos');
+$statement->execute();
+//Be careful because fetchALL can saturate memory...so it may be good to use a single call to fetch
+//returns associative array and regular indexed array by default, so use FETCH_OBJ to get entire rows. Use FETCH_CLASS
+// to wrap the returned information into a class: syntax -- $statement->fetchAll(PDO::FETCH_CLASS, 'Task')
+$results = $statement->fetchAll(PDO::FETCH_OBJ); 
+
+// generate a new task array using generateTaskList
+$tasks = generateTaskList($results);
+
+// var_dump($tasks[0]->description);
+
 require 'index2.view.php';
-
-
 
 ?>
